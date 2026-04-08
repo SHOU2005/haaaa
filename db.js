@@ -1,17 +1,21 @@
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
-// Connect to Supabase using the environment variable
+// 1. Setup the Connection Pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
-  }
+  },
+  // Add a timeout so the app doesn't hang forever if Supabase is slow
+  connectionTimeoutMillis: 10000, 
 });
 
 const initDb = async () => {
   try {
-    // ─── CREATE TABLES (Postgres Syntax) ────────────────────────────────
+    console.log('📡 Database: Checking connection to Supabase...');
+    
+    // ─── CREATE TABLES ──────────────────────────────────────────────────
     await pool.query(`
       CREATE TABLE IF NOT EXISTS staff (
         id          SERIAL PRIMARY KEY,
@@ -85,13 +89,17 @@ const initDb = async () => {
       );
 
       console.log('✅ Seeding complete!');
+    } else {
+      console.log('✅ Database tables verified.');
     }
   } catch (err) {
-    console.error('❌ Database Init Error:', err);
+    // We log the error but DO NOT crash the server
+    console.error('❌ Database Init Error:', err.message);
   }
 };
 
-initDb();
+// IMPORTANT: Run init without 'await' so the server boots immediately
+initDb().catch(err => console.error("Post-boot DB Error:", err));
 
 module.exports = {
   query: (text, params) => pool.query(text, params),
