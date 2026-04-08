@@ -1,0 +1,5 @@
+node_modules/
+.env
+switch_staff.db
+switch_staff.db-wal
+switch_staff.db-shm
