@@ -4,9 +4,7 @@ const bcrypt = require('bcryptjs');
 // 1. Setup the Connection Pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  },
+  ssl: true,
   // Add a timeout so the app doesn't hang forever if Supabase is slow
   connectionTimeoutMillis: 10000, 
 });
